@@ -1,0 +1,14 @@
+100	Prepare Fry	0				
+101	Turn on burner (low)	100	1	1	10	15
+102	Break eggs and pour into fry	100	2	4	10	14
+103	Steer mixture to avoid sticking	100	5	10	10	14
+104	Throw yellow cheese into fry	100	6	12	10	17
+105	"Salt, pepper"	100	5	5	10	16
+106	Turn burner off	100	12	12	10	15
+200	Prepare the bread	0				
+201	Heat bread in toaster	200	10	12	10	28
+202	"Little bit of salt, galric spice to bread"	200	12	12	10	28
+300	Serve eggs	0				
+301	Put bread in plate	300	13	13	10	50
+302	Put eggs on bread	300	14	14	10	50
+303	Wash fry	300	15	20	10	49
