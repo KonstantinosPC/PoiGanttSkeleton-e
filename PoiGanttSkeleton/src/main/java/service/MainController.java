@@ -22,7 +22,7 @@ public class MainController implements IMainController {
 		return null;
 	}
 
-//---------------------------------------------------------------------------------------------------------------
+//__________________________________________________________________________________________________________________________________________________________________________________________________________________
 	
 	@Override
 	public List<TaskAbstract> getAllTasks() {
@@ -31,7 +31,7 @@ public class MainController implements IMainController {
 		List<TaskAbstract> templistforsimpletasks = null;
 		List<TaskAbstract> templistfortopleveltasks = null;
 		//A list for Tasks, each task reprisented by a string
-		List<String> Tasks = this.load("",CSV_EU);
+		List<String> Tasks = this.load("",/FilleTypes.CSV_EU);
 		//we merge each string with a task while sorting it
 		//I have to know the structure of List<String> to write the code correctly, I will make it with split(given that each string is saparated by "\t"), 
 		//TODO check the code 
@@ -63,7 +63,15 @@ public class MainController implements IMainController {
 		return null;
 	}
 
-//-----------------------------new private methods----------------------------------------------------------------
+//-----------------------------new private methods----------------------------------------------------------------------------------------------------------------------------------------------------------------
+//---------------------------------------1------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	//A helping method to Update a null task (by Changing the Strings to ints)
+	private TaskAbstract UpdateTask(String taskId, String taskText,String containerTaskId,String Start,String end, String cost,String effort){
+		TaskAbstract newtask = new SimpleTask(Integer.parseInt(taskId),taskText,Integer.parseInt(containerTaskId),Integer.parseInt(Start),Integer.parseInt(end),Integer.parseInt(cost),Integer.parseInt(effort));
+		return newtask;
+	}	
+//---------------------------------------1------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//---------------------------------------2------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	//A helping method to sort 2 Lists (of tasks and topleveltasks) into one List
 	private List<TaskAbstract> SortAllTasks(List<TaskAbstract> toplevel,List<TaskAbstract> singletask){
 		List<TaskAbstract> Final = new ArrayList<>();
@@ -89,22 +97,68 @@ public class MainController implements IMainController {
 
 		return Final;
 	}
-
-	//TODO : make the list
+//---------------------------------------2------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//---------------------------------------2.1----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	//Sorting a list using mergesort
 	private List<TaskAbstract> SortList(List<TaskAbstract> alist){
-		return alist;
+		if(alist.size() <= 1){
+			return alist;
+		}
+
+		int middle = alist.size()/2;
+		List<TaskAbstract> left = new ArrayList<>(alist.subList(0, middle));
+		List<TaskAbstract> right = new ArrayList<>(alist.subList(middle,alist.size()));
+		return merge(SortList(left),SortList(right));
 	}
-
-	//A helping method to Update a null task (by Changing the Strings to ints)
-	private TaskAbstract UpdateTask(String taskId, String taskText,String containerTaskId,String Start,String end, String cost,String effort){
-		TaskAbstract newtask = new SimpleTask(Integer.parseInt(taskId),taskText,Integer.parseInt(containerTaskId),Integer.parseInt(Start),Integer.parseInt(end),Integer.parseInt(cost),Integer.parseInt(effort));
-		return newtask;
-	}
-
-//-----------------------------new private methods----------------------------------------------------------------
-
-//----------------------------------------------------------------------------------------------------------------
+//---------------------------------------2.1------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//---------------------------------------2.2------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	//mergesort method
+	private List<TaskAbstract> merge(List<TaskAbstract> left,List<TaskAbstract> right){
+		List<TaskAbstract> result = new ArrayList<>();
+		int i = 0;
+		int j = 0;
 	
+		while(i< left.size() && j< right.size()){
+			TaskAbstract leftTask = left.get(i);
+			TaskAbstract rightTask = right.get(j);
+			
+			if(compareTasks(leftTask,rightTask) <= 0){
+				result.add(rightTask);
+				i++;
+			}else{
+				result.add(leftTask);
+				j++;
+			}
+		}
+
+		while (i< left.size()){
+			result.add(left.get(i));
+			i++;
+		}
+
+		while (j< right.size()){
+			result.add(right.get(j));
+			j++;
+		}
+
+		return result;
+	}
+//---------------------------------------2.2------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//---------------------------------------2.3------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	//a method like compareTo..
+	private int compareTasks(TaskAbstract task1,TaskAbstract task2){
+		int containerDiff = task1.getContainerTaskId() - task2.getContainerTaskId();
+		if(containerDiff != 0){
+			return containerDiff;
+		}
+		return task1.compareTo(task2);
+	}
+
+//---------------------------------------2.3------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------new private methods------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//__________________________________________________________________________________________________________________________________________________________________________________________________________________
 	@Override
 	public boolean rawWriteToExcelFile(List<TaskAbstract> tasks) {
 		// TODO Auto-generated method stub
