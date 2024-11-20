@@ -22,9 +22,17 @@ public class SimpleTask extends TaskAbstract {
         return taskstart;
     }
 
+    public void setTaskstart(int taskstart) {
+        this.taskstart = taskstart;
+    }
+
     @Override
     public int getTaskEnd() {
         return taskend;
+    }
+
+    public void setTaskend(int taskend) {
+        this.taskend = taskend;
     }
 
     @Override
@@ -32,9 +40,17 @@ public class SimpleTask extends TaskAbstract {
         return cost;
     }
 
+    public void setCost(int cost) {
+        this.cost = cost;
+    }
+
     @Override
     public double getEffort() {
         return effort;
+    }
+
+    public void setEffort(int effort) {
+        this.effort = effort;
     }
 
     @Override
