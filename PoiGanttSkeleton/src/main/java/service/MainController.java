@@ -57,14 +57,28 @@ public class MainController implements IMainController {
 
 	@Override
 	public List<TaskAbstract> getTopLevelTasksOnly() {
-		// TODO Auto-generated method stub
-		return null;
+		List<TaskAbstract> allTasks = this.getAllTasks();
+		List<TaskAbstract> topTasks = new ArrayList<>();
+		
+		for (TaskAbstract taskAbstract : allTasks) {
+			if(taskAbstract.isSimple()==false){
+				topTasks.add(taskAbstract);
+			}
+		}
+		return topTasks;
 	}
 
 	@Override
 	public List<TaskAbstract> getTasksInRange(int firstIncluded, int lastIncluded) {
-		// TODO Auto-generated method stub
-		return null;
+		List<TaskAbstract> allTasks = this.getAllTasks();
+		List<TaskAbstract> IncludedTasks = new ArrayList<>();
+		
+		for (TaskAbstract taskAbstract : allTasks) {
+			if((taskAbstract.getTaskId()<=lastIncluded)&&(taskAbstract.getTaskId()>=firstIncluded)){
+				IncludedTasks.add(taskAbstract);
+			}
+		}
+		return IncludedTasks;
 	}
 
 //====================================================================================================new private methods====================================================================================================
