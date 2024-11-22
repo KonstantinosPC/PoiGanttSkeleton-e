@@ -66,8 +66,14 @@ public class MainController implements IMainController {
 			String topBarStyleName, String topDataStyleName, String nonTopBarStyleName, String nonTopDataStyleName,
 			String normalStyleName) {
 
-				Workbook wb = new HSSFWorkbook();
-				Sheet newSheet = wb.createSheet(sheetName);
+		Workbook wb = new HSSFWorkbook();
+		Sheet newSheet = wb.createSheet(sheetName);
+		wb.headerStyleName(headerStyleName);
+		wb.topDataStyleName(topDataStyleName);
+		wb.nonTopBarStyleName(nonTopBarStyleName);
+		wb.nonTopDataStyleName(nonTopDataStyleName);
+		wb.normalStyleName(normalStyleName);
+		wb.import(tasks);
 
 
 				
