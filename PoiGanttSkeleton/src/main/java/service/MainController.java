@@ -67,7 +67,10 @@ public class MainController implements IMainController {
 			String normalStyleName) {
 
 				Workbook wb = new HSSFWorkbook();
-				Sheet sheet1 = wb.createSheet("New Sheet");
+				Sheet newSheet = wb.createSheet(sheetName);
+
+
+				
 
 		// TODO Auto-generated method stub
 		return false;
