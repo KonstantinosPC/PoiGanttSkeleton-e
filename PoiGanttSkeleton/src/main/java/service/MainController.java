@@ -11,6 +11,11 @@ import util.ProjectInfo;
 
 public class MainController implements IMainController {
 
+	private FileTypes fileType;
+	private String sourcePath;
+	private List<String> loadedTasks = new ArrayList<>();
+	private List<TaskAbstract> tasks;
+
 	@Override
 	public List<String> load(String sourcePath, FileTypes filetype) {
 		// TODO Auto-generated method stub
@@ -26,19 +31,35 @@ public class MainController implements IMainController {
 	@Override
 	public List<TaskAbstract> getAllTasks() {
 		
-		//Two lists to return all Task-items, one for sigle tasks and another for toplevel tasks
+		//Two lists to return all Task-items, one for single tasks and another for toplevel tasks
 		List<TaskAbstract> templistforsimpletasks = new ArrayList<>();
 		List<TaskAbstract> templistfortopleveltasks = new ArrayList<>();
 		
 		//A list for Tasks, each task reprisented by a string
-		List<String> Tasks = this.load("",/FilleTypes.CSV_EU);
+		List<String> Tasks = loadedTasks;
 		
-		//=====I have to know the structure of List<String> to write the code correctly, I will make it with split(given that each string is saparated by "\t")===== 
 		//=====given that size of mamatasks is 3!!!*************************************************************************************************************=====
 		
-		//I'm reading each string to make 2 lists with completed TaskAbstract Objects, one for toplevel tasks(mamatasks), and one for sigle tasks(subtasks)
+		//seperator is defined by the case of each fileType(the field of the class), because in load(method) seperator is not the same in every case of filetype(the field of load(method))
+		String separator = "";
 		for (String task : Tasks) {
-			String separator = "\t";
+			switch(fileType) {
+			case XLS :
+				
+			case XLSX :
+				
+			case CSV :
+				separator = ",";
+				break;
+			case CSV_EU :
+				separator = ";";
+				break;
+			case TSV :
+				
+			default:
+				separator = "\t";
+			}
+			//I'm reading each string to make 2 lists with completed TaskAbstract Objects, one for toplevel tasks(mamatasks), and one for sigle tasks(subtasks)
 			String[] temp = task.split(separator);
 			if(temp.length==3){
 				templistfortopleveltasks.add(UpdateTask(temp[0],temp[1],temp[2],"0","0","0","0"));
@@ -49,7 +70,8 @@ public class MainController implements IMainController {
 
 		//Then I'm Sorting these 2 lists into 1(with mergesort), while updating each toplevel task(mamatask)_fields
 		try {
-			return SortAllTasks(templistfortopleveltasks, templistforsimpletasks);	
+			tasks = SortAllTasks(templistfortopleveltasks, templistforsimpletasks); 
+			return tasks;	
 		} catch (Exception e) {
 			return null;
 		}
@@ -65,7 +87,8 @@ public class MainController implements IMainController {
 				topTasks.add(taskAbstract);
 			}
 		}
-		return topTasks;
+		tasks = topTasks; 
+		return tasks;
 	}
 
 	@Override
@@ -78,7 +101,8 @@ public class MainController implements IMainController {
 				IncludedTasks.add(taskAbstract);
 			}
 		}
-		return IncludedTasks;
+		tasks = IncludedTasks; 
+		return tasks;
 	}
 
 //====================================================================================================new private methods====================================================================================================
@@ -214,6 +238,19 @@ public class MainController implements IMainController {
 
 //__________________________________________________2.3____________________________________________________________________________________________________
 
+//--------------------------------------------------3----------------------------------------------------------------------------------------------------
+	public List<String> getloadedTasks(){
+		return loadedTasks;
+	}
+//__________________________________________________3____________________________________________________________________________________________________
+
+//--------------------------------------------------4----------------------------------------------------------------------------------------------------
+	public boolean setloadedTasks(List<String> tasklist){
+		loadedTasks = tasklist;
+		return true;
+	}
+//__________________________________________________4____________________________________________________________________________________________________
+
 //____________________________________________________________________________________________________new private methods____________________________________________________________________________________________________
 
 @Override
@@ -240,3 +277,4 @@ public class MainController implements IMainController {
 	}
 
 }
+
