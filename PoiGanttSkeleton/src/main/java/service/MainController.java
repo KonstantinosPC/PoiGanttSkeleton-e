@@ -1,10 +1,10 @@
 package service;
 
+import java.util.List;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.List;
 import dom.gantt.TaskAbstract;
 import util.FileTypes;
 import util.ProjectInfo;
@@ -21,6 +21,8 @@ public class MainController implements IMainController {
 	@Override
 	public List<String> load(String sourcePath, FileTypes filetype) {
 		// TODO Auto-generated method stub
+		this.sourcePath = sourcePath;
+		this.fileType = filetype;
 		return null;
 	}
 
@@ -65,6 +67,20 @@ public class MainController implements IMainController {
 		return null;
 	}
 
+
+	public int[] taskNumbering(List<TaskAbstract> tasks){
+		int list[] = {1,0};
+		int max = 0;
+		for(TaskAbstract x: tasks){
+			if(tasks.getTaskEnd() > max){
+				max = tasks.getTaskEnd();
+			}
+		}
+		
+		list[1] = max;
+		return list;
+	}
+	
 	@Override
 	public boolean createNewSheet(String sheetName, List<TaskAbstract> tasks, String headerStyleName,
 			String topBarStyleName, String topDataStyleName, String nonTopBarStyleName, String nonTopDataStyleName,
@@ -79,15 +95,28 @@ public class MainController implements IMainController {
 
 				if (workbook.getSheet(sheetName) != null) {
 					System.err.println("Sheet with name " + sheetName + " already exists.");
+					workbook.close();
 					return false;
 				}
 
 		
 				XSSFSheet newSheet = workbook.createSheet(sheetName);
 
+				/* Creates the Header Row which Implements all the basic info it needs */
 				XSSFRow headerRow = newSheet.createRow(0);
-				headerRow.createCell(0).setCellValue("Task Name");
-				headerRow.createCell(1).setCellValue("Task Description");
+				headerRow.createCell(0).setCellValue("");
+				headerRow.createCell(1).setCellValue("Level");
+				headerRow.createCell(2).setCellValue("Id");
+				headerRow.createCell(3).setCellValue("Description");
+				headerRow.createCell(4).setCellValue("Cost");
+				headerRow.createCell(5).setCellValue("Effort");
+				
+				int[] numberHeader = taskNumbering(tasks);
+				for(int i=numberHeader[0]; i<numberHeader[1]; i++){
+					headerRow.createCell(i+5).setCellValue(i);
+				}
+				/* This is where the header stops */
+
 
 				workbook.write(outputStream);
 
