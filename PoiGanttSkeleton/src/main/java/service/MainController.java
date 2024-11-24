@@ -4,18 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import dom.gantt.TaskAbstract;
 import util.FileTypes;
 import util.ProjectInfo;
-
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -24,6 +16,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class MainController implements IMainController {
 
 	private String sourcePath;
+	private FileTypes fileType;
 
 	@Override
 	public List<String> load(String sourcePath, FileTypes filetype) {
@@ -77,9 +70,11 @@ public class MainController implements IMainController {
 			String topBarStyleName, String topDataStyleName, String nonTopBarStyleName, String nonTopDataStyleName,
 			String normalStyleName) {
 
-			try (FileInputStream inputStream = new FileInputStream(new File(sourcePath));
-				FileOutputStream outputStream = new FileOutputStream(new File(sourcePath))) {
-					
+				ProjectInfo ProjectWorkspace =  prepareTargetWorkbook(fileType, sourcePath);
+
+			try (FileInputStream inputStream = new FileInputStream(new File(ProjectWorkspace.getSourceFileName()));
+				FileOutputStream outputStream = new FileOutputStream(new File(ProjectWorkspace.getTargetFileName()))) {
+
 				XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
 
 				if (workbook.getSheet(sheetName) != null) {
@@ -104,7 +99,6 @@ public class MainController implements IMainController {
 				e.printStackTrace();
 				return false;
 			}
-			
 
 	}
 
