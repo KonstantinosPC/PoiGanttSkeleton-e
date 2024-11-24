@@ -504,7 +504,6 @@ public class MainController implements IMainController {
 				max = x.getTaskEnd();
 			}
 		}
-		/* FROZE FIX THAT */
 		
 		list[1] = max;
 		return list;
