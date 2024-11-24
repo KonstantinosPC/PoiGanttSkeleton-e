@@ -8,7 +8,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
 
-import java.util.Scanner;
 
 import dom.gantt.TaskAbstract;
 import util.FileTypes;
@@ -16,8 +15,15 @@ import util.ProjectInfo;
 
 public class MainController implements IMainController {
 
+	 private FileTypes fileType;
+	 private String sourcePath;
+	 
 	@Override
 	public List<String> load(String sourcePath, FileTypes filetype) {
+		
+		this.sourcePath = sourcePath;
+        this.fileType = filetype;
+		
         List<String> tasks = new ArrayList<>();
 
         switch (filetype) {
@@ -47,22 +53,21 @@ public class MainController implements IMainController {
     }
 
     private List<String> loadXls(String sourcePath) {
-    
-    	 List<String> rows = new ArrayList<>();
-         try (FileInputStream fis = new FileInputStream(sourcePath);
-				Workbook workbook = new HSSFWorkbook(fis)) {
-             Sheet sheet = workbook.getSheetAt(0);
-             for (Row row : sheet) {
-                 StringBuilder rowString = new StringBuilder();   
-                 for (Cell cell : row) {
-                     rowString.append(cell.toString()).append(",");
-                 }
-                 rows.add(rowString.toString().replaceAll(",$", ""));
-             }
-         } catch (IOException e) {
-             throw new RuntimeException("Error loading XLS file: " + sourcePath, e);
-         }
-         return rows;
+        List<String> rows = new ArrayList<>();
+        try (FileInputStream fis = new FileInputStream(sourcePath);
+             Workbook workbook = new HSSFWorkbook(fis)) {
+            Sheet sheet = workbook.getSheetAt(0);
+            for (Row row : sheet) {
+                StringBuilder rowString = new StringBuilder();
+                for (Cell cell : row) {
+                    rowString.append(cell.toString()).append(",");
+                }
+                rows.add(rowString.toString());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error loading XLS file: " + sourcePath, e);
+        }
+        return rows;
      }
     
 
@@ -95,14 +100,97 @@ public class MainController implements IMainController {
         } catch (IOException e) {
             throw new RuntimeException("Error loading CSV/TSV file: " + sourcePath, e);
         }
-        return tasks;
+        return tasks;       
+    }
+    // Getter for fileType
+    public FileTypes getFileType() {
+        return fileType;
     }
 
+    // Setter for fileType
+    public void setFileType(FileTypes fileType) {
+        this.fileType = fileType;
+    }
+
+    // Getter for sourcePath
+    public String getSourcePath() {
+        return sourcePath;
+    }
+
+    // Setter for sourcePath
+    public void setSourcePath(String sourcePath) {
+        this.sourcePath = sourcePath;
+    }
+
+    
+ 
+      
 	@Override
 	public ProjectInfo prepareTargetWorkbook(FileTypes fileType, String targetPath) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		 if (fileType == null || sourcePath == null) {
+		        return null; // Return null if the file type or source path is not set
+		    }
+
+		    try (
+		        // Initialize the workbook in a try-with-resources block
+		        Workbook workbook = createWorkbook(fileType)
+		    ) {
+		        if (workbook == null) {
+		            return null; // Return null if the workbook cannot be created
+		        }
+
+		        // Add a new sheet
+		        Sheet sheet = workbook.createSheet("Sheet1");
+
+		        // Load the tasks (read from the source file)
+		        List<String> tasks = load(sourcePath, fileType);
+		        if (tasks == null || tasks.isEmpty()) {
+		            return null; // Return null if no tasks are loaded
+		        }
+
+		        // Write the tasks into the sheet row by row
+		        int rowIndex = 0;
+		        for (String task : tasks) {
+		            Row row = sheet.createRow(rowIndex++);
+		            String[] taskCells = task.split(","); // Assuming tasks are comma-separated
+		            for (int colIndex = 0; colIndex < taskCells.length; colIndex++) {
+		                Cell cell = row.createCell(colIndex);
+		                cell.setCellValue(taskCells[colIndex]);
+		            }
+		        }
+
+		        // Save the workbook to the target file
+		        try (FileOutputStream fos = new FileOutputStream(targetPath)) {
+		            workbook.write(fos);
+		        }
+
+		        // Calculate metadata for ProjectInfo
+		        int totalNumTasks = tasks.size();
+		        int totalTopTasks = (int) tasks.stream().filter(t -> t.split(",").length == 1).count(); // Count single-column tasks
+
+		        // Construct and return ProjectInfo object
+		        String projectName = "GeneratedProject";
+		        String sourceFileName = new File(sourcePath).getName();
+		        String targetFileName = new File(targetPath).getName();
+		        return new ProjectInfo(projectName, sourceFileName, targetFileName, totalNumTasks, totalTopTasks);
+
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		        return null; // Return null if something goes wrong
+		    }
+		}
+
+		// Helper method to create the workbook based on file type
+		private Workbook createWorkbook(FileTypes fileType) {
+		    switch (fileType) {
+		        case XLS:
+		            return new HSSFWorkbook();
+		        case XLSX:
+		            return new XSSFWorkbook();
+		        default:
+		            throw new IllegalArgumentException("Unsupported file type for target: " + fileType);
+		    }
+		}
 
 	@Override
 	public List<TaskAbstract> getAllTasks() {
