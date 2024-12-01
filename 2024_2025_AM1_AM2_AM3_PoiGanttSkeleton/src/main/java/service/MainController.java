@@ -20,6 +20,7 @@ public class MainController implements IMainController {
 	private String sourcePath;
 	private List<String> loadedTasks;
 	private List<TaskAbstract> tasks;
+	private Workbook sheet;
 	
 	@Override
 	public List<String> load(String sourcePath, FileTypes filetype) {
@@ -248,8 +249,33 @@ public class MainController implements IMainController {
 			String styleFontName, boolean styleFontBold, boolean styleFontItalic, boolean styleFontStrikeout,
 			short styleFillForegroundColor, String styleFillPatternString, String HorizontalAlignmentString,
 			boolean styleWrapText) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		CellStyle cellStyle = sheet.createCellStyle();
+		Font font = sheet.createFont();
+		
+		font.setColor(styleFontColor);
+		font.setFontHeightInPoints(styleFontHeightInPoints);
+		font.setFontName(styleFontName);
+		font.setBold(styleFontBold);
+		font.setItalic(styleFontItalic);
+		font.setStrikeout(styleFontStrikeout);
+		
+		
+		cellStyle.setFillForegroundColor(styleFillForegroundColor);
+		cellStyle.setWrapText(styleWrapText);
+		
+		if (styleFillPatternString != null && !styleFillPatternString.isEmpty()) {
+		    FillPatternType fillPatternType = FillPatternType.valueOf(styleFillPatternString.toUpperCase());
+		    cellStyle.setFillPattern(fillPatternType);
+		}
+		
+		if (HorizontalAlignmentString != null && !HorizontalAlignmentString.isEmpty()) {
+		    HorizontalAlignment alignment = HorizontalAlignment.valueOf(HorizontalAlignmentString.toUpperCase());
+		    cellStyle.setAlignment(alignment);
+		}
+		
+		
+		return styleName;
 	}
 
 	@Override
@@ -269,12 +295,14 @@ public class MainController implements IMainController {
 					workbook.close();
 					return false;
 				}
-
-		
+				
+				this.sheet = workbook;
+				
 				XSSFSheet newSheet = workbook.createSheet(sheetName);
 
 				/* Creates the Header Row which Implements all the basic info it needs */
 				XSSFRow headerRow = newSheet.createRow(0);
+				/* need to add to every cellValue the addFontedStyle method */
 				headerRow.createCell(0).setCellValue("");
 				headerRow.createCell(1).setCellValue("Level");
 				headerRow.createCell(2).setCellValue("Id");
