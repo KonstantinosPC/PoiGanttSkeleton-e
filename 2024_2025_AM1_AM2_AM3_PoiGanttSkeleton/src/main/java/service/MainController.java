@@ -284,50 +284,49 @@ public class MainController implements IMainController {
 			String topBarStyleName, String topDataStyleName, String nonTopBarStyleName, String nonTopDataStyleName,
 			String normalStyleName) {
 
-				ProjectInfo ProjectWorkspace =  prepareTargetWorkbook(fileType, sourcePath);
+			
+			Sheet sheet = this.workbook.createSheet(sheetName);
 
-			try (FileInputStream inputStream = new FileInputStream(new File(ProjectWorkspace.getSourceFileName()));
-				FileOutputStream outputStream = new FileOutputStream(new File(ProjectWorkspace.getTargetFileName()))) {
+	        // Create the header row
+	        Row headerRow = sheet.createRow(0);
+	        String[] headers = { "      ", "Level", "Id", "Description", "Cost", "Effort"};
+	        int numberedTasks[] = taskNumbering(tasks);
+	        for (int i = 0; i < headers.length; i++) {
+	            headerRow.createCell(i).setCellValue(headers[i]);
+	            for(int j=numberedTasks[0]; j<=numberedTasks[1];j++) {
+	            	headerRow.createCell(i+j).setCellValue(j);
+	            }
+	        }
 
-				XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+	        // Fill data rows
+	        int rowIndex = 1; // Start after the header row
+	        for (TaskAbstract task : tasks) {
+	            Row row = sheet.createRow(rowIndex++);
+	            if(task.getContainerTaskId() == 0) {
+	            	row.createCell(1).setCellValue("TOP");
+	            }
+	            row.createCell(2).setCellValue(task.getTaskId());
+	            row.createCell(3).setCellValue(task.getTaskText());
+	            row.createCell(4).setCellValue(task.getCost());
+	            row.createCell(5).setCellValue(task.getEffort());
+	            for(int i=task.getTaskStart(); i<=task.getTaskEnd(); i++) {
+	            	row.createCell(i + 5).setCellValue("x");
+	            }
+	            
+	        }
 
-				if (workbook.getSheet(sheetName) != null) {
-					System.err.println("Sheet with name " + sheetName + " already exists.");
-					workbook.close();
-					return false;
-				}
+	        // Auto-size columns for better readability
+	        for (int i = 0; i < headers.length; i++) {
+	            sheet.autoSizeColumn(i);
+	        }
 
-				this.sheet = workbook;
-				
-				XSSFSheet newSheet = workbook.createSheet(sheetName);
-
-				/* Creates the Header Row which Implements all the basic info it needs */
-				XSSFRow headerRow = newSheet.createRow(0);
-				/* need to add to every cellValue the addFontedStyle method */
-				headerRow.createCell(0).setCellValue("");
-				headerRow.createCell(1).setCellValue("Level");
-				headerRow.createCell(2).setCellValue("Id");
-				headerRow.createCell(3).setCellValue("Description");
-				headerRow.createCell(4).setCellValue("Cost");
-				headerRow.createCell(5).setCellValue("Effort");
-				
-				int[] numberHeader = taskNumbering(tasks);
-				for(int i=numberHeader[0]; i<numberHeader[1]; i++){
-					headerRow.createCell(i+5).setCellValue(i);
-				}
-				/* This is where the header stops */
-
-
-				workbook.write(outputStream);
-
-
-				workbook.close();
-				return true;
-
-			} catch (IOException e) {
-				e.printStackTrace();
-				return false;
-			}
+	        // Write the workbook to a file
+	        try (FileOutputStream fos = new FileOutputStream(this.targetPath)) {
+	            this.workbook.write(fos);
+	            System.out.println("Tasks written successfully to " + this.targetPath);
+	            return false;
+	        }
+	        return true;
 
 	}
 
