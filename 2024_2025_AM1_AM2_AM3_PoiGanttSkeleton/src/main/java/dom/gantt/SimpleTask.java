@@ -6,10 +6,10 @@ public class SimpleTask extends TaskAbstract {
 
     private int taskstart;
     private int taskend;
-    private int cost;
-    private int effort;
+    private double cost;
+    private double effort;
 
-    public SimpleTask(int taskId, String taskText, int containerTaskId,int Start,int end, int cost,int effort) {
+    public SimpleTask(int taskId, String taskText, int containerTaskId,int Start,int end, double cost,double effort) {
 		super(taskId, taskText, containerTaskId);
         this.taskstart = Start;
 		this.taskend = end;

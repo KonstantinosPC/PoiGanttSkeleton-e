@@ -20,6 +20,9 @@ public class MainController implements IMainController {
 	private String sourcePath;
 	private List<String> loadedTasks;
 	private List<TaskAbstract> tasks;
+	private String targetPath;
+	
+	private Workbook workbook;
 	private Workbook sheet;
 	
 	@Override
@@ -53,6 +56,8 @@ public class MainController implements IMainController {
                 throw new IllegalArgumentException("Unsupported file type: " + filetype); 
         }
         loadedTasks = tasks;
+        
+        
         return tasks; 
     }
 
@@ -78,7 +83,6 @@ public class MainController implements IMainController {
 			// Load the tasks (read from the source file)
 			List<String> tasks = loadedTasks;
 			if (tasks == null || tasks.isEmpty()) {
-				System.out.println("Return NULL #2");
 				return null; // Return null if no tasks are loaded
 			}
 
@@ -94,7 +98,6 @@ public class MainController implements IMainController {
 			}
 
 			// Save the workbook to the target file
-			System.out.println("HERE!!!");
 			try (FileOutputStream fos = new FileOutputStream(targetPath)) {
 				
 				workbook.write(fos);
@@ -102,17 +105,22 @@ public class MainController implements IMainController {
 
 			// Calculate metadata for ProjectInfo
 			int totalNumTasks = tasks.size();
-			int totalTopTasks = (int) tasks.stream().filter(t -> t.split(",").length == 1).count(); // Count single-column tasks
-
+			int totalTopTasks = 0;
+			for(int i = 0;i< totalNumTasks;i++) {
+				if((int)(Double.parseDouble(tasks.get(i).split("\t")[2])) == 0) {
+					totalTopTasks += 1; // Count single-column tasks
+				}
+			}
 			// Construct and return ProjectInfo object
 			String projectName = "GeneratedProject";
 			String sourceFileName = new File(sourcePath).getName();
 			String targetFileName = new File(targetPath).getName();
+			
+			this.targetPath = targetPath;
 			return new ProjectInfo(projectName, sourceFileName, targetFileName, totalNumTasks, totalTopTasks);
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.out.println("Return NULL #3");
 			return null; // Return null if something goes wrong
 		}
 	}
@@ -123,36 +131,19 @@ public class MainController implements IMainController {
 		//Two lists to return all Task-items, one for single tasks and another for toplevel tasks
 		List<TaskAbstract> templistforsimpletasks = new ArrayList<>();
 		List<TaskAbstract> templistfortopleveltasks = new ArrayList<>();
-		
-		//A list for Tasks, each task reprisented by a string
-		List<String> Tasks = loadedTasks;
-		
+
 		//=====given that size of mamatasks is 3!!!*************************************************************************************************************=====
 		
 		//seperator is defined by the case of each fileType(the field of the class), because in load(method) seperator is not the same in every case of filetype(the field of load(method))
-		String separator = "";
-		for (String task : Tasks) {
-			switch(fileType) {
-			case XLS :
-				/*!!!!!!!!!!!!!!!!!!! ----- CHeck first */
-			case XLSX :
-				
-			case CSV :
-				separator = ",";
-				break;
-			case CSV_EU :
-				separator = ";";
-				break;
-			case TSV :
-				
-			default:
-				separator = "\t";
-			}
+		String separator = "\t";
+		
+		for (String task : loadedTasks) {
+			
 			//I'm reading each string to make 2 lists with completed TaskAbstract Objects, one for toplevel tasks(mamatasks), and one for sigle tasks(subtasks)
 			String[] temp = task.split(separator);
 			if(temp.length==3){
 				templistfortopleveltasks.add(UpdateTask(temp[0],temp[1],temp[2],"0","0","0","0"));
-			}else{
+			}else if(temp.length==7){
 				templistforsimpletasks.add(UpdateTask(temp[0],temp[1],temp[2],temp[3],temp[4],temp[5],temp[6]));
 			}
 		}
@@ -162,6 +153,7 @@ public class MainController implements IMainController {
 			tasks = SortAllTasks(templistfortopleveltasks, templistforsimpletasks); 
 			return tasks;	
 		} catch (Exception e) {
+			e.printStackTrace();
 			return null;
 		}
 	}
@@ -201,29 +193,37 @@ public class MainController implements IMainController {
 	        return false;
 	    }
 
-	    String targetFileName = "TasksOutput.xlsx"; // Default file name for the output file
+	    String targetFileName = this.targetPath; // Default file name for the output file
 	    try (Workbook workbook = new XSSFWorkbook()) { // Create a new workbook (XLSX format)
+	    	this.workbook = workbook;
 	        Sheet sheet = workbook.createSheet("Tasks");
 
 	        // Create the header row
 	        Row headerRow = sheet.createRow(0);
-	        String[] headers = { "Task ID", "Task Text", "Container Task ID", "Start", "End", "Cost", "Effort" };
+	        String[] headers = { "      ", "Level", "Id", "Description", "Cost", "Effort"};
+	        int numberedTasks[] = taskNumbering(tasks);
 	        for (int i = 0; i < headers.length; i++) {
-	            Cell cell = headerRow.createCell(i);
-	            cell.setCellValue(headers[i]);
+	            headerRow.createCell(i).setCellValue(headers[i]);
+	            for(int j=numberedTasks[0]; j<=numberedTasks[1];j++) {
+	            	headerRow.createCell(i+j).setCellValue(j);
+	            }
 	        }
 
 	        // Fill data rows
 	        int rowIndex = 1; // Start after the header row
 	        for (TaskAbstract task : tasks) {
 	            Row row = sheet.createRow(rowIndex++);
-	            row.createCell(0).setCellValue(task.getTaskId());
-	            row.createCell(1).setCellValue(task.getTaskText());
-	            row.createCell(2).setCellValue(task.getContainerTaskId());
-	            row.createCell(3).setCellValue(task.getTaskStart());
-	            row.createCell(4).setCellValue(task.getTaskEnd());
-	            row.createCell(5).setCellValue(task.getCost());
-	            row.createCell(6).setCellValue(task.getEffort());
+	            if(task.getContainerTaskId() == 0) {
+	            	row.createCell(1).setCellValue("TOP");
+	            }
+	            row.createCell(2).setCellValue(task.getTaskId());
+	            row.createCell(3).setCellValue(task.getTaskText());
+	            row.createCell(4).setCellValue(task.getCost());
+	            row.createCell(5).setCellValue(task.getEffort());
+	            for(int i=task.getTaskStart(); i<=task.getTaskEnd(); i++) {
+	            	row.createCell(i + 5).setCellValue("x");
+	            }
+	            
 	        }
 
 	        // Auto-size columns for better readability
@@ -249,7 +249,7 @@ public class MainController implements IMainController {
 			String styleFontName, boolean styleFontBold, boolean styleFontItalic, boolean styleFontStrikeout,
 			short styleFillForegroundColor, String styleFillPatternString, String HorizontalAlignmentString,
 			boolean styleWrapText) {
-		
+
 		CellStyle cellStyle = sheet.createCellStyle();
 		Font font = sheet.createFont();
 		
@@ -276,6 +276,7 @@ public class MainController implements IMainController {
 		
 		
 		return styleName;
+	
 	}
 
 	@Override
@@ -295,7 +296,7 @@ public class MainController implements IMainController {
 					workbook.close();
 					return false;
 				}
-				
+
 				this.sheet = workbook;
 				
 				XSSFSheet newSheet = workbook.createSheet(sheetName);
@@ -343,7 +344,7 @@ public class MainController implements IMainController {
             for (Row row : sheet) {
                 StringBuilder rowString = new StringBuilder();
                 for (Cell cell : row) {
-                    rowString.append(cell.toString()).append(",");
+                    rowString.append(cell.toString()).append("\t");
                 }
                 rows.add(rowString.toString());
             }
@@ -362,7 +363,7 @@ public class MainController implements IMainController {
             for (Row row : sheet) {
                 StringBuilder rowString = new StringBuilder();
                 for (Cell cell : row) {
-                    rowString.append(cell.toString()).append(",");
+                    rowString.append(cell.toString()).append("\t");
                 }
                 rows.add(rowString.toString()); // No replacement of trailing commas
             }
@@ -379,7 +380,7 @@ public class MainController implements IMainController {
             while ((line = reader.readLine()) != null) {
             	String[] values = line.split(Character.toString(delimiter));
                 // Process line based on the delimiter
-                tasks.add(String.join(",", values));
+                tasks.add(String.join("\t", values));
             }
         } catch (IOException e) {
             throw new RuntimeException("Error loading CSV/TSV file: " + sourcePath, e);
@@ -422,7 +423,7 @@ public class MainController implements IMainController {
 
 	//A helping method to Update task_fields (by Changing the Strings to ints), making a SimpleTask task(Object) 
 	private TaskAbstract UpdateTask(String taskId, String taskText,String containerTaskId,String Start,String end, String cost,String effort){
-		TaskAbstract newtask = new SimpleTask(Integer.parseInt(taskId),taskText,Integer.parseInt(containerTaskId),Integer.parseInt(Start),Integer.parseInt(end),Integer.parseInt(cost),Integer.parseInt(effort));
+		TaskAbstract newtask = new SimpleTask((int) Double.parseDouble(taskId),taskText,(int) Double.parseDouble(containerTaskId),(int) Double.parseDouble(Start),(int) Double.parseDouble(end),Double.parseDouble(cost),Double.parseDouble(effort));
 		return newtask;
 	}	
 
@@ -437,6 +438,7 @@ public class MainController implements IMainController {
 		List<TaskAbstract> Final = new ArrayList<>();
 		List<TaskAbstract> topTasks = SortList(toplevel);
 		List<TaskAbstract> subtasks = SortList(singletask);
+		
 
 		//I will fill the Final List (by merging the /\ two sorted Lists)
 		for (TaskAbstract task : topTasks) {
@@ -566,13 +568,12 @@ public class MainController implements IMainController {
 
 	public int[] taskNumbering(List<TaskAbstract> tasks){
 		int list[] = {1,0};
+		int min = tasks.get(0).getTaskStart();
 		int max = 0;
 		for(TaskAbstract x: tasks){
-			if(x.getTaskEnd() > max){
-				max = x.getTaskEnd();
-			}
+			max = x.getTaskEnd();
 		}
-		
+		list[0] = min;
 		list[1] = max;
 		return list;
 	}
