@@ -1,11 +1,13 @@
 package service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
+//import org.apache.poi.xssf.usermodel.XSSFRow;
+//import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.*;
 import dom.gantt.TaskAbstract;
@@ -21,9 +23,9 @@ public class MainController implements IMainController {
 	private List<String> loadedTasks;
 	private List<TaskAbstract> tasks;
 	private String targetPath;
+	private Map<String, CellStyle> styleGallery;
 	
 	private Workbook workbook;
-	private Workbook sheet;
 	
 	@Override
 	public List<String> load(String sourcePath, FileTypes filetype) {
@@ -194,8 +196,10 @@ public class MainController implements IMainController {
 	    }
 
 	    String targetFileName = this.targetPath; // Default file name for the output file
-	    try (Workbook workbook = new XSSFWorkbook()) { // Create a new workbook (XLSX format)
-	    	this.workbook = workbook;
+	    Workbook workbook = new XSSFWorkbook();
+	    this.workbook = workbook;
+	    try { // Create a new workbook (XLSX format)
+	    	
 	        Sheet sheet = workbook.createSheet("Tasks");
 
 	        // Create the header row
@@ -230,7 +234,7 @@ public class MainController implements IMainController {
 	        for (int i = 0; i < headers.length; i++) {
 	            sheet.autoSizeColumn(i);
 	        }
-
+	        
 	        // Write the workbook to a file
 	        try (FileOutputStream fos = new FileOutputStream(targetFileName)) {
 	            workbook.write(fos);
@@ -246,37 +250,43 @@ public class MainController implements IMainController {
 
 	@Override
 	public String addFontedStyle(String styleName, short styleFontColor, short styleFontHeightInPoints,
-			String styleFontName, boolean styleFontBold, boolean styleFontItalic, boolean styleFontStrikeout,
-			short styleFillForegroundColor, String styleFillPatternString, String HorizontalAlignmentString,
-			boolean styleWrapText) {
+	                             String styleFontName, boolean styleFontBold, boolean styleFontItalic, 
+	                             boolean styleFontStrikeout, short styleFillForegroundColor, 
+	                             String styleFillPatternString, String horizontalAlignmentString, 
+	                             boolean styleWrapText) {
+	    CellStyle cellStyle = this.workbook.createCellStyle();
+	    System.out.println("Error #1");
+	    Font font = this.workbook.createFont();
+	    font.setColor(styleFontColor);
+	    font.setFontHeightInPoints(styleFontHeightInPoints);
+	    font.setFontName(styleFontName);
+	    font.setBold(styleFontBold);
+	    font.setItalic(styleFontItalic);
+	    font.setStrikeout(styleFontStrikeout);
+	    cellStyle.setFont(font);
+	    System.out.println("Error #2");
+	    if (styleFillForegroundColor >= 0) {
+	        cellStyle.setFillForegroundColor(styleFillForegroundColor);
+	    }
+	    System.out.println("Error #3");
+	    if (horizontalAlignmentString != null && !horizontalAlignmentString.isEmpty()) {
+	        try {
+	            HorizontalAlignment alignment = HorizontalAlignment.valueOf(horizontalAlignmentString.toUpperCase());
+	            cellStyle.setAlignment(alignment);
+	        } catch (IllegalArgumentException e) {
+	            throw new IllegalArgumentException("Invalid horizontal alignment: " + horizontalAlignmentString, e);
+	        }
+	    }
+	    System.out.println("Error #4");
 
-		CellStyle cellStyle = sheet.createCellStyle();
-		Font font = sheet.createFont();
-		
-		font.setColor(styleFontColor);
-		font.setFontHeightInPoints(styleFontHeightInPoints);
-		font.setFontName(styleFontName);
-		font.setBold(styleFontBold);
-		font.setItalic(styleFontItalic);
-		font.setStrikeout(styleFontStrikeout);
-		
-		
-		cellStyle.setFillForegroundColor(styleFillForegroundColor);
-		cellStyle.setWrapText(styleWrapText);
-		
-		if (styleFillPatternString != null && !styleFillPatternString.isEmpty()) {
-		    FillPatternType fillPatternType = FillPatternType.valueOf(styleFillPatternString.toUpperCase());
-		    cellStyle.setFillPattern(fillPatternType);
-		}
-		
-		if (HorizontalAlignmentString != null && !HorizontalAlignmentString.isEmpty()) {
-		    HorizontalAlignment alignment = HorizontalAlignment.valueOf(HorizontalAlignmentString.toUpperCase());
-		    cellStyle.setAlignment(alignment);
-		}
-		
-		
-		return styleName;
-	
+	    cellStyle.setWrapText(styleWrapText);
+
+	    if (this.styleGallery == null) {
+	        this.styleGallery = new HashMap<>();
+	    }
+	    this.styleGallery.put(styleName, cellStyle);
+	    System.out.println("Error #5");
+	    return styleName;
 	}
 
 	@Override
@@ -284,7 +294,11 @@ public class MainController implements IMainController {
 			String topBarStyleName, String topDataStyleName, String nonTopBarStyleName, String nonTopDataStyleName,
 			String normalStyleName) {
 
-			
+			if(this.workbook == null) {
+				System.err.println("Workbook Closed");
+			}
+		
+		
 			Sheet sheet = this.workbook.createSheet(sheetName);
 
 	        // Create the header row
@@ -324,7 +338,9 @@ public class MainController implements IMainController {
 	        try (FileOutputStream fos = new FileOutputStream(this.targetPath)) {
 	            this.workbook.write(fos);
 	            System.out.println("Tasks written successfully to " + this.targetPath);
-	            return false;
+	        }catch(Exception e) {
+	        	e.printStackTrace();
+	        	return false;
 	        }
 	        return true;
 
@@ -565,7 +581,7 @@ public class MainController implements IMainController {
 //__________________________________________________4____________________________________________________________________________________________________
 
 
-	public int[] taskNumbering(List<TaskAbstract> tasks){
+	private int[] taskNumbering(List<TaskAbstract> tasks){
 		int list[] = {1,0};
 		int min = tasks.get(0).getTaskStart();
 		int max = 0;
@@ -576,4 +592,15 @@ public class MainController implements IMainController {
 		list[1] = max;
 		return list;
 	}
+	
+
+	public CellStyle getStyle(String styleName) {
+	    if (this.styleGallery == null || !this.styleGallery.containsKey(styleName)) {
+	        throw new IllegalArgumentException("Style not found: " + styleName);
+	    }
+	    return this.styleGallery.get(styleName);
+	}
+	
 }
+
+

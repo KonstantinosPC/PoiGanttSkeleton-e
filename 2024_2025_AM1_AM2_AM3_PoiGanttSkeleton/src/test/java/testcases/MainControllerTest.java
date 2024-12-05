@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -23,8 +24,8 @@ public class MainControllerTest {
 	@Before
 	public void setUp(){
 		testObject = new MainController();
-		sourcepath = "C:/Users/User/Desktop/2024_2025_AM1_AM2_AM3_PoiGanttSkeleton/src/test/resources/input/EggsScrambled.tsv";
-		targetPath = "C:/Users/User/Desktop/2024_2025_AM1_AM2_AM3_PoiGanttSkeleton/src/test/resources/output/EggsScrambled.xlsx";
+		sourcepath = "/Users/konstantinoseliopoulos/Desktop/Gant-Final/2024_2025_AM1_AM2_AM3_PoiGanttSkeleton/src/test/resources/input/EggsScrambled.tsv";
+		targetPath = "/Users/konstantinoseliopoulos/Desktop/Gant-Final/2024_2025_AM1_AM2_AM3_PoiGanttSkeleton/src/test/resources/output/EggsScrambled.xlsx";
 		filetype = FileTypes.TSV;
 	}
 
@@ -94,47 +95,34 @@ public class MainControllerTest {
 
 	@Test
 	public final void testAddFontedStyle() {
-		fail("Not yet implemented");
+		testObject.load(sourcepath, filetype);
+		projectObject = testObject.prepareTargetWorkbook(FileTypes.XLS, targetPath);
+		testObject.rawWriteToExcelFile(testObject.getAllTasks());
+		System.out.println("BB");
+		String barStyleName = testObject.addFontedStyle(
+			    "TopTask_bar_style",
+			    IndexedColors.WHITE.getIndex(),
+			    (short) 10,
+			    "Times New Roman",
+			    false,
+			    false,
+			    false,
+			    IndexedColors.BLUE.getIndex(),
+			    "solid",
+			    "left",
+			    false
+			);
+		System.out.println("C");
 	}
 
 	@Test
 	public final void testCreateNewSheet() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public final void testGetFileType() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public final void testSetFileType() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public final void testGetSourcePath() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public final void testSetSourcePath() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public final void testGetloadedTasks() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public final void testSetloadedTasks() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public final void testTaskNumbering() {
-		fail("Not yet implemented");
+		testObject.load(sourcepath, filetype);
+		projectObject = testObject.prepareTargetWorkbook(FileTypes.XLS, targetPath);
+		testObject.rawWriteToExcelFile(testObject.getAllTasks());
+		System.out.println("Test Create new sheet");
+		testObject.createNewSheet("File too", testObject.getTopLevelTasksOnly(), sourcepath, sourcepath, sourcepath, sourcepath, targetPath, sourcepath);
+		
 	}
 
 }
