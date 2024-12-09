@@ -331,15 +331,54 @@ public class MainController implements IMainController {
 	        int rowIndex = 1; // Start after the header row
 	        for (TaskAbstract task : tasks) {
 	            Row row = sheet.createRow(rowIndex++);
-	            if(task.isSimple()) {
-	            	row.createCell(1).setCellValue("TOP");
+	            Cell top;
+	            if(!task.isSimple()) {
+	            	top = row.createCell(1);
+	            	top.setCellValue("TOP");
+	            	if(!topDataStyleName.equals("Normal")) {
+	            		top.setCellStyle(styleGallery.get(topDataStyleName));
+	            	}else {
+	            		top.setCellStyle(styleGallery.get("normalFontedStyle"));
+	            	}
 	            }
-	            row.createCell(2).setCellValue(task.getTaskId());
-	            row.createCell(3).setCellValue(task.getTaskText());
-	            row.createCell(4).setCellValue(task.getCost());
-	            row.createCell(5).setCellValue(task.getEffort());
+	            Cell id = row.createCell(2);
+	            id.setCellValue(task.getTaskId());
+	            Cell taskText = row.createCell(3);
+	            taskText.setCellValue(task.getTaskText());
+	            Cell cost = row.createCell(4);
+	            cost.setCellValue(task.getCost());
+	            Cell effort = row.createCell(5);
+	            effort.setCellValue(task.getEffort());
+	            
+	            if(!task.isSimple()) {
+	            	if(!topDataStyleName.equals("Normal")) {
+	            		id.setCellStyle(styleGallery.get(topDataStyleName));
+	            		taskText.setCellStyle(styleGallery.get(topDataStyleName));
+	            		cost.setCellStyle(styleGallery.get(topDataStyleName));
+	            		effort.setCellStyle(styleGallery.get(topDataStyleName));
+	            	}else {
+	            		id.setCellStyle(styleGallery.get("normalFontedStyle"));
+	            		taskText.setCellStyle(styleGallery.get("normalFontedStyle"));
+	            		cost.setCellStyle(styleGallery.get("normalFontedStyle"));
+	            		effort.setCellStyle(styleGallery.get("normalFontedStyle"));
+	            	}
+	            }else {
+	            	if(!nonTopDataStyleName.equals("Normal")) {
+	            		id.setCellStyle(styleGallery.get(nonTopDataStyleName));
+	            		taskText.setCellStyle(styleGallery.get(nonTopDataStyleName));
+	            		cost.setCellStyle(styleGallery.get(nonTopDataStyleName));
+	            		effort.setCellStyle(styleGallery.get(nonTopDataStyleName));
+	            	}else {
+	            		id.setCellStyle(styleGallery.get("normalFontedStyle"));
+	            		taskText.setCellStyle(styleGallery.get("normalFontedStyle"));
+	            		cost.setCellStyle(styleGallery.get("normalFontedStyle"));
+	            		effort.setCellStyle(styleGallery.get("normalFontedStyle"));
+	            	}
+	            }
+	            
 	            for(int i=task.getTaskStart(); i<=task.getTaskEnd(); i++) {
 	            	Cell cell = row.createCell(i + 5);
+	     
 	            	if(task.isSimple() && !topBarStyleName.equals("Normal")) {
 	            		cell.setCellStyle(styleGallery.get(topBarStyleName));
 	            	}else {

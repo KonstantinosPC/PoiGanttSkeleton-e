@@ -122,7 +122,7 @@ public class MainControllerTest {
 		testObject.load(sourcepath, filetype);
 		projectObject = testObject.prepareTargetWorkbook(FileTypes.XLS, targetPath);
 		testObject.rawWriteToExcelFile(testObject.getAllTasks());
-		testObject.createNewSheet("File too", testObject.getTopLevelTasksOnly(), "Normal", "Normal", "Normal", "Normal", "Normal", "Normal");
+		testObject.createNewSheet("File too", testObject.getAllTasks(), "Normal", "Normal", "Normal", "Normal", "Normal", "Normal");
 	}
 	
 
