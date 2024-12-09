@@ -194,7 +194,7 @@ public class MainController implements IMainController {
 	        System.err.println("No tasks provided to write to the Excel file.");
 	        return false;
 	    }
-
+		
 	    String targetFileName = this.targetPath; // Default file name for the output file
 	    Workbook workbook = new XSSFWorkbook();
 	    this.workbook = workbook;
@@ -255,7 +255,6 @@ public class MainController implements IMainController {
 	                             String styleFillPatternString, String horizontalAlignmentString, 
 	                             boolean styleWrapText) {
 	    CellStyle cellStyle = this.workbook.createCellStyle();
-	    System.out.println("Error #1");
 	    Font font = this.workbook.createFont();
 	    font.setColor(styleFontColor);
 	    font.setFontHeightInPoints(styleFontHeightInPoints);
@@ -264,11 +263,10 @@ public class MainController implements IMainController {
 	    font.setItalic(styleFontItalic);
 	    font.setStrikeout(styleFontStrikeout);
 	    cellStyle.setFont(font);
-	    System.out.println("Error #2");
 	    if (styleFillForegroundColor >= 0) {
+	    	cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	        cellStyle.setFillForegroundColor(styleFillForegroundColor);
 	    }
-	    System.out.println("Error #3");
 	    if (horizontalAlignmentString != null && !horizontalAlignmentString.isEmpty()) {
 	        try {
 	            HorizontalAlignment alignment = HorizontalAlignment.valueOf(horizontalAlignmentString.toUpperCase());
@@ -277,7 +275,6 @@ public class MainController implements IMainController {
 	            throw new IllegalArgumentException("Invalid horizontal alignment: " + horizontalAlignmentString, e);
 	        }
 	    }
-	    System.out.println("Error #4");
 
 	    cellStyle.setWrapText(styleWrapText);
 
@@ -285,7 +282,6 @@ public class MainController implements IMainController {
 	        this.styleGallery = new HashMap<>();
 	    }
 	    this.styleGallery.put(styleName, cellStyle);
-	    System.out.println("Error #5");
 	    return styleName;
 	}
 
@@ -296,27 +292,46 @@ public class MainController implements IMainController {
 
 			if(this.workbook == null) {
 				System.err.println("Workbook Closed");
+				return false;
 			}
+			
+			addFontedStyle("normalFontedStyle",IndexedColors.BLACK.getIndex(), (short) 11,"Aptos Narrow", false, false, false,IndexedColors.WHITE.getIndex(), "solid", "left", false);
 		
-		
+			
 			Sheet sheet = this.workbook.createSheet(sheetName);
-
 	        // Create the header row
 	        Row headerRow = sheet.createRow(0);
 	        String[] headers = { "      ", "Level", "Id", "Description", "Cost", "Effort"};
 	        int numberedTasks[] = taskNumbering(tasks);
-	        for (int i = 0; i < headers.length; i++) {
-	            headerRow.createCell(i).setCellValue(headers[i]);
-	            for(int j=numberedTasks[0]; j<=numberedTasks[1];j++) {
-	            	headerRow.createCell(i+j).setCellValue(j);
-	            }
-	        }
+	        
 
+	        for (int i = 0; i < headers.length; i++) {
+	        	Cell cell = headerRow.createCell(i);
+	        	if(!headerStyleName.equals("Normal")) {
+	        		cell.setCellStyle(styleGallery.get(headerStyleName));
+	        	}else {
+            		cell.setCellStyle(styleGallery.get("normalFontedStyle"));
+            	}
+	        	
+	        	cell.setCellValue(headers[i]);
+	        }
+	        for(int j=numberedTasks[0]; j<=numberedTasks[1];j++) {
+	        	Cell cell = headerRow.createCell((headers.length -1)+j);
+	        	if(!headerStyleName.equals("Normal")) {
+	        		cell.setCellStyle(styleGallery.get(headerStyleName));
+	        	}else {
+            		cell.setCellStyle(styleGallery.get("normalFontedStyle"));
+            	}
+	        	
+	        	cell.setCellValue(j);
+	        }
+	        
+	        
 	        // Fill data rows
 	        int rowIndex = 1; // Start after the header row
 	        for (TaskAbstract task : tasks) {
 	            Row row = sheet.createRow(rowIndex++);
-	            if(task.getContainerTaskId() == 0) {
+	            if(task.isSimple()) {
 	            	row.createCell(1).setCellValue("TOP");
 	            }
 	            row.createCell(2).setCellValue(task.getTaskId());
@@ -324,7 +339,20 @@ public class MainController implements IMainController {
 	            row.createCell(4).setCellValue(task.getCost());
 	            row.createCell(5).setCellValue(task.getEffort());
 	            for(int i=task.getTaskStart(); i<=task.getTaskEnd(); i++) {
-	            	row.createCell(i + 5).setCellValue("x");
+	            	Cell cell = row.createCell(i + 5);
+	            	if(task.isSimple() && !topBarStyleName.equals("Normal")) {
+	            		cell.setCellStyle(styleGallery.get(topBarStyleName));
+	            	}else {
+	            		cell.setCellStyle(styleGallery.get("normalFontedStyle"));
+	            	}
+	            	
+	            	if(!task.isSimple() && !nonTopBarStyleName.equals("Normal")) {
+	            		cell.setCellStyle(styleGallery.get(topBarStyleName));
+	            	}else {
+	            		cell.setCellStyle(styleGallery.get("normalFontedStyle"));
+	            	}
+	            	
+	            	cell.setCellValue(" ");
 	            }
 	            
 	        }
@@ -600,6 +628,7 @@ public class MainController implements IMainController {
 	    }
 	    return this.styleGallery.get(styleName);
 	}
+	
 	
 }
 

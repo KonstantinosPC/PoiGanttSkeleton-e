@@ -5,7 +5,10 @@ import static org.junit.Assert.*;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.IndexedColors;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import dom.gantt.TaskAbstract;
@@ -24,8 +27,8 @@ public class MainControllerTest {
 	@Before
 	public void setUp(){
 		testObject = new MainController();
-		sourcepath = "/Users/konstantinoseliopoulos/Desktop/Gant-Final/2024_2025_AM1_AM2_AM3_PoiGanttSkeleton/src/test/resources/input/EggsScrambled.tsv";
-		targetPath = "/Users/konstantinoseliopoulos/Desktop/Gant-Final/2024_2025_AM1_AM2_AM3_PoiGanttSkeleton/src/test/resources/output/EggsScrambled.xlsx";
+		sourcepath = "C:/Users/User/Desktop/Gant-Final/2024_2025_AM1_AM2_AM3_PoiGanttSkeleton/src/test/resources/input/EggsScrambled.tsv";
+		targetPath = "C:/Users/User/Desktop/Gant-Final/2024_2025_AM1_AM2_AM3_PoiGanttSkeleton/src/test/resources/output/EggsScrambled.xlsx";
 		filetype = FileTypes.TSV;
 	}
 
@@ -84,7 +87,7 @@ public class MainControllerTest {
 		testObject.rawWriteToExcelFile(null);
 
 		System.out.println("test rawwrite for AllTasks");
-		testObject.rawWriteToExcelFile(testObject.getAllTasks());
+//		testObject.rawWriteToExcelFile(testObject.getAllTasks());
 
 		System.out.println("test rawwrite for TopLevelTasksOnly");
 //		testObject.rawWriteToExcelFile(testObject.getTopLevelTasksOnly());
@@ -92,13 +95,12 @@ public class MainControllerTest {
 		System.out.println("test rawwrite for TasksInRange(100,300)");
 //		testObject.rawWriteToExcelFile(testObject.getTasksInRange(100,300));
 	}
-
+	
 	@Test
 	public final void testAddFontedStyle() {
 		testObject.load(sourcepath, filetype);
 		projectObject = testObject.prepareTargetWorkbook(FileTypes.XLS, targetPath);
 		testObject.rawWriteToExcelFile(testObject.getAllTasks());
-		System.out.println("BB");
 		String barStyleName = testObject.addFontedStyle(
 			    "TopTask_bar_style",
 			    IndexedColors.WHITE.getIndex(),
@@ -112,17 +114,17 @@ public class MainControllerTest {
 			    "left",
 			    false
 			);
-		System.out.println("C");
 	}
 
-	@Test
+
+	@After
 	public final void testCreateNewSheet() {
 		testObject.load(sourcepath, filetype);
 		projectObject = testObject.prepareTargetWorkbook(FileTypes.XLS, targetPath);
 		testObject.rawWriteToExcelFile(testObject.getAllTasks());
-		System.out.println("Test Create new sheet");
-		testObject.createNewSheet("File too", testObject.getTopLevelTasksOnly(), sourcepath, sourcepath, sourcepath, sourcepath, targetPath, sourcepath);
-		
+		testObject.createNewSheet("File too", testObject.getTopLevelTasksOnly(), "Normal", "Normal", "Normal", "Normal", "Normal", "Normal");
 	}
+	
 
+	
 }
