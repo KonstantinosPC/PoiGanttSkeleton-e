@@ -6,9 +6,7 @@ import java.util.List;
 
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import dom.gantt.TaskAbstract;
@@ -27,8 +25,8 @@ public class MainControllerTest {
 	@Before
 	public void setUp(){
 		testObject = new MainController();
-		sourcepath = "C:/Users/User/Desktop/Gant-Final/2024_2025_AM1_AM2_AM3_PoiGanttSkeleton/src/test/resources/input/EggsScrambled.tsv";
-		targetPath = "C:/Users/User/Desktop/Gant-Final/2024_2025_AM1_AM2_AM3_PoiGanttSkeleton/src/test/resources/output/EggsScrambled.xlsx";
+		sourcepath = "/Users/konstantinoseliopoulos/Desktop/Gant-Final/2024_2025_AM1_AM2_AM3_PoiGanttSkeleton/src/test/resources/input/EggsScrambled.tsv";
+		targetPath = "/Users/konstantinoseliopoulos/Desktop/Gant-Final/2024_2025_AM1_AM2_AM3_PoiGanttSkeleton/src/test/resources/output/EggsScrambled.xlsx";
 		filetype = FileTypes.TSV;
 	}
 
@@ -122,7 +120,7 @@ public class MainControllerTest {
 		testObject.load(sourcepath, filetype);
 		projectObject = testObject.prepareTargetWorkbook(FileTypes.XLS, targetPath);
 		testObject.rawWriteToExcelFile(testObject.getAllTasks());
-		testObject.createNewSheet("File too", testObject.getAllTasks(), "Normal", "Normal", "Normal", "Normal", "Normal", "Normal");
+		testObject.createNewSheet("File too", testObject.getAllTasks(), "DefaultHeaderStyle", "TopTask_bar_style", "TopTask_data_style", "NonTopTask_bar_style", "NonTopTask_data_style", "Normal");
 	}
 	
 
