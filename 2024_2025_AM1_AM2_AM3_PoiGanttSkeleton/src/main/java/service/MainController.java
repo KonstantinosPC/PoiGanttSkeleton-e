@@ -329,11 +329,13 @@ public class MainController implements IMainController {
 	            Cell top;
 	            row.createCell(0).setCellStyle(styleGallery.get(normalStyleName));
 	            top = row.createCell(1);
-	            top.setCellStyle(styleGallery.get(normalStyleName));
 	            if(!task.isSimple()) {
 	            	top.setCellValue("TOP");
 	            	top.setCellStyle(styleGallery.get(topDataStyleName));
-	            }
+	            }else{
+					top.setCellStyle(styleGallery.get(normalStyleName));
+	            
+				}
 	            Cell id = row.createCell(2);
 	            id.setCellValue(task.getTaskId());
 	            Cell taskText = row.createCell(3);
@@ -355,14 +357,17 @@ public class MainController implements IMainController {
             		effort.setCellStyle(styleGallery.get(nonTopDataStyleName));
 	            }
 	            
-	            for(int i=task.getTaskStart(); i<=task.getTaskEnd(); i++) {
+	            for(int i=numberedTasks[0]; i<=numberedTasks[1]; i++) {
 	            	Cell cell = row.createCell(i + 5);
-	     
-	            	if(!(task.isSimple())) {
-	            		cell.setCellStyle(styleGallery.get(topBarStyleName));
-	            	}else {
-	            		cell.setCellStyle(styleGallery.get(nonTopBarStyleName));
-	            	}
+					if((i<=task.getTaskEnd())&&(i>=task.getTaskStart())){
+						if(!(task.isSimple())) {
+							cell.setCellStyle(styleGallery.get(topBarStyleName));
+						}else {
+							cell.setCellStyle(styleGallery.get(nonTopBarStyleName));
+						}
+					}else {
+						cell.setCellStyle(styleGallery.get(normalStyleName));
+					}
 	            }
 	            
 	        }
