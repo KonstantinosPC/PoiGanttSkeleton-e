@@ -297,10 +297,10 @@ public class MainController implements IMainController {
 			
 			addFontedStyle("Normal",IndexedColors.BLACK.getIndex(), (short) 11,"Aptos Narrow", false, false, false,IndexedColors.WHITE.getIndex(), "solid", "left", false);
 			addFontedStyle("DefaultHeaderStyle",IndexedColors.BLACK.getIndex(), (short) 15, "Aptos Narrow", false, false, false, IndexedColors.AQUA.getIndex(), "solid", "center", false);
-			addFontedStyle("TopTask_bar_style",IndexedColors.BLUE.getIndex(), (short) 20, "Aptos Narrow", true, false ,false,IndexedColors.WHITE.getIndex(), "solid", "center", false);
-			addFontedStyle("NonTopTask_bar_style", IndexedColors.BLACK.getIndex(), (short) 12, "Aptos Narrow", false, false, false, IndexedColors.WHITE.getIndex(), "solid", "center", false);
-			addFontedStyle("TopTask_data_style", IndexedColors.BLACK.getIndex(), (short) 12, "Aptos Narrow", false, false, false, IndexedColors.BLUE.getIndex(), "solid", "center", false);
-			addFontedStyle("NonTopTask_data_style", IndexedColors.BLACK.getIndex(), (short) 12, "Aptos Narrow", false, false, false, IndexedColors.LIGHT_BLUE.getIndex(), "solid", "center", false);
+			addFontedStyle("TopTask_data_style",IndexedColors.BLUE.getIndex(), (short) 20, "Aptos Narrow", true, false ,false,IndexedColors.WHITE.getIndex(), "solid", "center", false);
+			addFontedStyle("NonTopTask_data_style", IndexedColors.BLACK.getIndex(), (short) 12, "Aptos Narrow", false, false, false, IndexedColors.WHITE.getIndex(), "solid", "center", false);
+			addFontedStyle("TopTask_bar_style", IndexedColors.BLACK.getIndex(), (short) 12, "Aptos Narrow", false, false, false, IndexedColors.BLUE.getIndex(), "solid", "center", false);
+			addFontedStyle("NonTopTask_bar_style", IndexedColors.BLACK.getIndex(), (short) 12, "Aptos Narrow", false, false, false, IndexedColors.LIGHT_BLUE.getIndex(), "solid", "center", false);
 			
 			
 			Sheet sheet = this.workbook.createSheet(sheetName);
@@ -328,10 +328,11 @@ public class MainController implements IMainController {
 	            Row row = sheet.createRow(rowIndex++);
 	            Cell top;
 	            row.createCell(0).setCellStyle(styleGallery.get(normalStyleName));
+	            top = row.createCell(1);
+	            top.setCellStyle(styleGallery.get(normalStyleName));
 	            if(!task.isSimple()) {
-	            	top = row.createCell(1);
 	            	top.setCellValue("TOP");
-	            	top.setCellStyle(styleGallery.get(topBarStyleName));
+	            	top.setCellStyle(styleGallery.get(topDataStyleName));
 	            }
 	            Cell id = row.createCell(2);
 	            id.setCellValue(task.getTaskId());
@@ -343,24 +344,24 @@ public class MainController implements IMainController {
 	            effort.setCellValue(task.getEffort());
 	            
 	            if(!task.isSimple()) {
-            		id.setCellStyle(styleGallery.get(topBarStyleName));
-            		taskText.setCellStyle(styleGallery.get(topBarStyleName));
-            		cost.setCellStyle(styleGallery.get(topBarStyleName));
-            		effort.setCellStyle(styleGallery.get(topBarStyleName));
+            		id.setCellStyle(styleGallery.get(topDataStyleName));
+            		taskText.setCellStyle(styleGallery.get(topDataStyleName));
+            		cost.setCellStyle(styleGallery.get(topDataStyleName));
+            		effort.setCellStyle(styleGallery.get(topDataStyleName));
 	            }else {
-            		id.setCellStyle(styleGallery.get(nonTopBarStyleName));
-            		taskText.setCellStyle(styleGallery.get(nonTopBarStyleName));
-            		cost.setCellStyle(styleGallery.get(nonTopBarStyleName));
-            		effort.setCellStyle(styleGallery.get(nonTopBarStyleName));
+            		id.setCellStyle(styleGallery.get(nonTopDataStyleName));
+            		taskText.setCellStyle(styleGallery.get(nonTopDataStyleName));
+            		cost.setCellStyle(styleGallery.get(nonTopDataStyleName));
+            		effort.setCellStyle(styleGallery.get(nonTopDataStyleName));
 	            }
 	            
 	            for(int i=task.getTaskStart(); i<=task.getTaskEnd(); i++) {
 	            	Cell cell = row.createCell(i + 5);
 	     
 	            	if(!(task.isSimple())) {
-	            		cell.setCellStyle(styleGallery.get(topDataStyleName));
+	            		cell.setCellStyle(styleGallery.get(topBarStyleName));
 	            	}else {
-	            		cell.setCellStyle(styleGallery.get(nonTopDataStyleName));
+	            		cell.setCellStyle(styleGallery.get(nonTopBarStyleName));
 	            	}
 	            }
 	            
