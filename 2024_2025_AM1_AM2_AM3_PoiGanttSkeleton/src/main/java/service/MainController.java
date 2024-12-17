@@ -66,7 +66,6 @@ public class MainController implements IMainController {
 	@Override
 	public ProjectInfo prepareTargetWorkbook(FileTypes fileType, String targetPath) {
 		 if (fileType == null || sourcePath == null) {
-			 System.out.println("Return NULL #0");
 			return null; // Return null if the file type or source path is not set
 		}
 
@@ -75,7 +74,6 @@ public class MainController implements IMainController {
 			Workbook workbook = createWorkbook(fileType)
 		) {
 			if (workbook == null) {
-				System.out.println("Return NULL #1");
 				return null; // Return null if the workbook cannot be created
 			}
 
@@ -191,7 +189,6 @@ public class MainController implements IMainController {
 	@Override
 	public boolean rawWriteToExcelFile(List<TaskAbstract> tasks) {
 		if (tasks == null || tasks.isEmpty()) {
-	        System.err.println("No tasks provided to write to the Excel file.");
 	        return false;
 	    }
 		
@@ -238,7 +235,6 @@ public class MainController implements IMainController {
 	        // Write the workbook to a file
 	        try (FileOutputStream fos = new FileOutputStream(targetFileName)) {
 	            workbook.write(fos);
-	            System.out.println("Tasks written successfully to " + targetFileName);
 	        }
 	        return true;
 	    } catch (IOException e) {
@@ -291,7 +287,6 @@ public class MainController implements IMainController {
 			String normalStyleName) {
 
 			if(this.workbook == null) {
-				System.err.println("Workbook Closed");
 				return false;
 			}
 			
@@ -380,7 +375,6 @@ public class MainController implements IMainController {
 	        // Write the workbook to a file
 	        try (FileOutputStream fos = new FileOutputStream(this.targetPath)) {
 	            this.workbook.write(fos);
-	            System.out.println("Tasks written successfully to " + this.targetPath);
 	        }catch(Exception e) {
 	        	e.printStackTrace();
 	        	return false;
