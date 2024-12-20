@@ -26,9 +26,9 @@ public class MainControllerTest {
 	@Before
 	public void setUp(){
 		testObject = new MainController();
-		sourcepath = "C:/Users/Spiros/Desktop/Gant-Final/2024_2025_AM1_AM2_AM3_PoiGanttSkeleton/src/test/resources/input/EggsScrambled.tsv";
-		targetPath = "C:/Users/Spiros/Desktop/Gant-Final/2024_2025_AM1_AM2_AM3_PoiGanttSkeleton/src/test/resources/output/EggsScrambled.xlsx";
-		filetype = FileTypes.TSV;
+		sourcepath = "/Users/konstantinoseliopoulos/Desktop/2024_2025_5505_5515_5528_PoiGanttSkeleton/src/test/resources/input/personal.xlsx";
+		targetPath = "/Users/konstantinoseliopoulos/Desktop/2024_2025_5505_5515_5528_PoiGanttSkeleton/src/test/resources/output/personal.xlsx";
+		filetype = FileTypes.XLSX;
 		testObject.load(sourcepath,filetype);
 	}
 
